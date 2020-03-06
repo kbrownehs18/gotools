@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/kbrownehs18/gotool/common"
+	"github.com/kbrownehs18/gotools/common"
 )
 
 func TestGetLocalIp(t *testing.T) {

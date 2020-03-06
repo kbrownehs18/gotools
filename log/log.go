@@ -2,8 +2,8 @@ package log
 
 import (
 	"fmt"
-	"github.com/LastSync/gotool/common"
-	"github.com/LastSync/gotool/constants"
+	"github.com/kbrownehs18/gotools/common"
+	"github.com/kbrownehs18/gotools/constants"
 	"io"
 	"log"
 	"os"
@@ -12,15 +12,21 @@ import (
 	"time"
 )
 
-// Log Level
+// Level log level
 type Level int
 
 const (
+	// TRACE log level
 	TRACE Level = 1 << iota
+	// DEBUG log level
 	DEBUG
+	// INFO log level
 	INFO
+	// WARNING log level
 	WARNING
+	// ERROR log level
 	ERROR
+	// FATAL log level
 	FATAL
 )
 
@@ -60,12 +66,15 @@ func (l Level) String() string {
 	return "TRACE"
 }
 
-// Rotate
+// Rotate log
 type Rotate int
 
 const (
+	// NONE rotate
 	NONE Rotate = 1 << iota
+	// SIZE rotate
 	SIZE
+	// DAILY rotate
 	DAILY
 )
 
@@ -82,11 +91,13 @@ func NewRotate(name string) Rotate {
 	return NONE
 }
 
-// Log appender
+// Appender log
 type Appender int
 
 const (
+	// CONSOLE appender
 	CONSOLE Appender = 1 << iota
+	// FILE appender
 	FILE
 )
 
@@ -109,6 +120,7 @@ type Logger struct {
 	name        string
 }
 
+// Level return log level
 func (l *Logger) Level() Level {
 	return l.level
 }
@@ -128,6 +140,7 @@ func (fh *FileHandler) Write(b []byte) (n int, err error) {
 	return fh.fd.Write(b)
 }
 
+// Close file log handler close
 func (fh *FileHandler) Close() error {
 	if fh.fd != nil {
 		return fh.fd.Close()
@@ -191,6 +204,7 @@ func (fh *FileHandler) rollover() {
 	fh.fd, _ = os.OpenFile(fh.fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 }
 
+// NewFileHandler new FileHandler
 func NewFileHandler(path, fileName, rotate string, backupCount int, logSize ...int) (*FileHandler, error) {
 	if !common.Exists(path) {
 		if err := os.MkdirAll(path, 0777); err != nil {
@@ -273,34 +287,42 @@ func (l *Logger) outputf(level Level, format string, v ...interface{}) {
 	l.write(level, fmt.Sprintf(format, v...))
 }
 
+// Trace log
 func (l *Logger) Trace(v ...interface{}) {
 	l.output(TRACE, v)
 }
 
+// Tracef log
 func (l *Logger) Tracef(format string, v ...interface{}) {
 	l.outputf(TRACE, format, v)
 }
 
+// Debug log
 func (l *Logger) Debug(v ...interface{}) {
 	l.output(DEBUG, v)
 }
 
+// Debugf log
 func (l *Logger) Debugf(format string, v ...interface{}) {
 	l.outputf(DEBUG, format, v)
 }
 
+// Info log
 func (l *Logger) Info(v ...interface{}) {
 	l.output(INFO, v)
 }
 
+// Infof log
 func (l *Logger) Infof(format string, v ...interface{}) {
 	l.outputf(INFO, format, v)
 }
 
+// Warning log
 func (l *Logger) Warning(v ...interface{}) {
 	l.output(WARNING, v)
 }
 
+// Warningf log
 func (l *Logger) Warningf(format string, v ...interface{}) {
 	l.outputf(WARNING, format, v)
 }
@@ -309,14 +331,17 @@ func (l *Logger) Error(v ...interface{}) {
 	l.output(ERROR, v)
 }
 
+//Errorf log
 func (l *Logger) Errorf(format string, v ...interface{}) {
 	l.outputf(ERROR, format, v)
 }
 
+// Fatal log
 func (l *Logger) Fatal(v ...interface{}) {
 	l.output(FATAL, v)
 }
 
+// Fatalf log
 func (l *Logger) Fatalf(format string, v ...interface{}) {
 	l.outputf(FATAL, format, v)
 }

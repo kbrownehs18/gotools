@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/kbrownehs18/gotool/log"
+	"github.com/kbrownehs18/gotools/log"
 )
 
 func TestLog(t *testing.T) {
