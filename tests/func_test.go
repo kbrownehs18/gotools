@@ -31,3 +31,17 @@ func TestString(t *testing.T) {
 		t.Log(str)
 	}
 }
+
+func TestContains(t *testing.T) {
+	a := []int8{0, 1, 2, 3, 4, 5, 6, 9}
+	var n int8 = 0
+	t.Log(common.Contains(a, n))
+
+	m := map[string]bool{
+		"name":   true,
+		"gender": true,
+	}
+	x := "apple"
+	t.Log(common.Contains(m, x))
+	t.Log(common.Contains(m, "name"))
+}

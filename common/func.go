@@ -492,10 +492,18 @@ func Long2IP(ip uint32) string {
 	return fmt.Sprintf("%d.%d.%d.%d", ip>>24, ip<<8>>24, ip<<16>>24, ip<<24>>24)
 }
 
-// InArray is the item of array/slice
-func InArray(l []interface{}, v interface{}) bool {
-	for _, val := range l {
-		if val == v {
+// Contains item is in map/slice/array
+func Contains(haystack interface{}, needle interface{}) bool {
+	targetValue := reflect.ValueOf(haystack)
+	switch reflect.TypeOf(haystack).Kind() {
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < targetValue.Len(); i++ {
+			if targetValue.Index(i).Interface() == needle {
+				return true
+			}
+		}
+	case reflect.Map:
+		if targetValue.MapIndex(reflect.ValueOf(needle)).IsValid() {
 			return true
 		}
 	}
