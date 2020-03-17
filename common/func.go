@@ -732,6 +732,5 @@ func IsFile(path string) bool {
 func SHA256(s string) string {
 	h := sha256.New()
 	h.Write([]byte(s))
-	bs := h.Sum(nil)
-	return string(bs)
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
