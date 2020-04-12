@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/kbrownehs18/gotools/common"
@@ -44,4 +45,34 @@ func TestContains(t *testing.T) {
 	x := "apple"
 	t.Log(common.Contains(m, x))
 	t.Log(common.Contains(m, "name"))
+}
+
+func TestHttpRequest(t *testing.T) {
+	rtn, err := common.HTTPRequest("https://postman-echo.com/get", common.GET, map[string]string{
+		"foo1": "bar1", "foo2": "bar2",
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(rtn)
+
+	rtn, err = common.HTTPRequest("https://postman-echo.com/post", common.POST, map[string]string{
+		"foo1": "bar1", "foo2": "bar2",
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(rtn)
+
+	str, err := json.Marshal(map[string]string{
+		"foo1": "bar1", "foo2": "bar2",
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	rtn, err = common.HTTPRequest("https://postman-echo.com/post", common.POST, string(str))
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(rtn)
 }

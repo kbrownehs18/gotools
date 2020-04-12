@@ -530,43 +530,61 @@ func SplitBySpaceTab(str string) []string {
 // HTTPRequest request
 // url request url
 // method request method post or get
-// args[0] type is map[string]string, request paramaters, \x00@ if upload file
+// args[0] type is map[string]string or string, request paramaters, \x00@ if upload file
 // args[1] type is map[string]string, request headers
 // args[2] type is bool, whether to return the result
 // args[3] type is *http.Client, custom client
 func HTTPRequest(url string, method Method, args ...interface{}) (string, error) {
-	params := make(map[string]string)  // request parameters
+	paramsMap := make(map[string]string) // request parameters
+	var paramsStr string
+	var paramsIsStr bool
 	headers := make(map[string]string) // request headers
 	rtn := true
 	var client *http.Client
-
+	var ok bool
 	argsLen := len(args)
 	if argsLen > 0 {
-		params = args[0].(map[string]string)
+		paramsMap, ok = args[0].(map[string]string)
+		if !ok {
+			paramsStr, ok = args[0].(string)
+			if !ok {
+				return "", errors.New("Params error")
+			}
+			paramsIsStr = true
+		}
 	}
 	if argsLen > 1 {
-		headers = args[1].(map[string]string)
+		headers, ok = args[1].(map[string]string)
+		if !ok {
+			return "", errors.New("Headers error")
+		}
 	}
 	if argsLen > 2 {
-		rtn = args[2].(bool)
+		rtn, ok = args[2].(bool)
+		if !ok {
+			return "", errors.New("Return bool error")
+		}
 	}
 	if argsLen > 3 {
-		client = args[3].(*http.Client)
+		client, ok = args[3].(*http.Client)
+		if !ok {
+			return "", errors.New("Http client error")
+		}
 	} else {
 		client = http.DefaultClient
 	}
 
 	var req *http.Request
 	var err error
-	contentType := "application/x-www-form-urlencoded; charset=utf-8" // default content-type
-
+	contentType := "" // default content-type
+	var queryString string
+	if paramsIsStr {
+		queryString = URLEncode(paramsStr)
+	} else {
+		queryString = URLEncode(paramsMap)
+	}
 	if method == GET {
 		// GET
-		q := make([]string, 0, len(params))
-		for k, v := range params {
-			q = append(q, URLEncode(k)+"="+URLEncode(v))
-		}
-		queryString := strings.Join(q, "&")
 		if queryString != "" {
 			if strings.Index(url, "?") != -1 {
 				// has params
@@ -582,18 +600,20 @@ func HTTPRequest(url string, method Method, args ...interface{}) (string, error)
 		// POST
 		// whether there is upload file
 		var isFile bool
-		for _, v := range params {
-			if strings.Index(v, "\x00@") == 0 {
-				// there is upload file
-				isFile = true
-				break
+		if !paramsIsStr {
+			for _, v := range paramsMap {
+				if strings.Index(v, "\x00@") == 0 {
+					// there is upload file
+					isFile = true
+					break
+				}
 			}
 		}
 		if isFile {
 			bodyBuf := new(bytes.Buffer)
 			bodyWriter := multipart.NewWriter(bodyBuf)
 
-			for key, value := range params {
+			for key, value := range paramsMap {
 				if strings.Index(value, "\x00@") == 0 {
 					value = strings.Replace(value, "\x00@", "", -1)
 					fileWriter, err := bodyWriter.CreateFormFile(key, filepath.Base(value))
@@ -621,11 +641,14 @@ func HTTPRequest(url string, method Method, args ...interface{}) (string, error)
 			contentType = bodyWriter.FormDataContentType()
 			req, err = http.NewRequest("POST", url, bodyBuf)
 		} else {
-			v := httpurl.Values{}
-			for key, value := range params {
-				v.Set(key, value)
+			if paramsIsStr {
+				contentType = "application/json; charset-utf-8"
+				req, err = http.NewRequest("POST", url, strings.NewReader(paramsStr))
+			} else {
+				contentType = "application/x-www-form-urlencoded; charset=utf-8"
+				req, err = http.NewRequest("POST", url, strings.NewReader(queryString))
 			}
-			req, err = http.NewRequest("POST", url, strings.NewReader(v.Encode()))
+
 		}
 	}
 
@@ -633,12 +656,14 @@ func HTTPRequest(url string, method Method, args ...interface{}) (string, error)
 		return "", err
 	}
 
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
+
 	// add headers
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
-	//req.Header.Set("Connection", "close") //
-	req.Header.Set("Content-Type", contentType)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -675,8 +700,22 @@ func CopyFile(dstName, srcName string) (written int64, err error) {
 }
 
 // URLEncode urlencode
-func URLEncode(str string) string {
-	return httpurl.QueryEscape(str)
+func URLEncode(params interface{}) string {
+	q, ok := params.(string)
+	if ok {
+		return httpurl.QueryEscape(q)
+	}
+	m, ok := params.(map[string]string)
+	if ok {
+		val := httpurl.Values{}
+		for k, v := range m {
+			val.Set(k, v)
+		}
+
+		return val.Encode()
+	}
+
+	return ""
 }
 
 // URLDecode urldecode
