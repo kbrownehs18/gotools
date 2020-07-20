@@ -30,8 +30,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// GetLocalIp get local network ip
-func GetLocalIp() ([]string, error) {
+// GetLocalIP get local network ip
+func GetLocalIP() ([]string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return nil, err
@@ -49,19 +49,39 @@ func GetLocalIp() ([]string, error) {
 	return ips, nil
 }
 
+// AuthCodeType auth code type
 type AuthCodeType int
 
 const (
+	// ENCODE encode str
 	ENCODE AuthCodeType = iota
+	// DECODE decode str
 	DECODE
 )
 
+// Method http request method
 type Method int8
 
 const (
+	// POST post http request
 	POST Method = iota
+	// GET http request get method
 	GET
 )
+
+func (m Method) String() string {
+	var name string
+	switch m {
+	case POST:
+		name = "POST"
+	case GET:
+		name = "GET"
+	default:
+		name = "UNKNOWN"
+	}
+
+	return name
+}
 
 // AbsolutePath get execute binary path
 func AbsolutePath() (string, error) {
