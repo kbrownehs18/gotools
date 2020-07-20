@@ -2,6 +2,7 @@ package common
 
 import (
 	"bytes"
+	"crypto/hmac"
 	"crypto/md5"
 	crand "crypto/rand"
 	"crypto/rsa"
@@ -790,6 +791,13 @@ func IsFile(path string) bool {
 // SHA256 return string
 func SHA256(s string) string {
 	h := sha256.New()
+	h.Write([]byte(s))
+	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+// HMacSHA256 hmac sha256
+func HMacSHA256(s, key string) string {
+	h := hmac.New(sha256.New, []byte(key))
 	h.Write([]byte(s))
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
