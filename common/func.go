@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -102,7 +103,7 @@ func AbsolutePath() (string, error) {
 func Md5Sum(text string) string {
 	h := md5.New()
 	io.WriteString(h, text)
-	return fmt.Sprintf("%x", h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 // NewRand return *rand.Rand
@@ -792,12 +793,12 @@ func IsFile(path string) bool {
 func SHA256(s string) string {
 	h := sha256.New()
 	h.Write([]byte(s))
-	return fmt.Sprintf("%x", h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 // HMacSHA256 hmac sha256
 func HMacSHA256(s, key string) string {
 	h := hmac.New(sha256.New, []byte(key))
 	h.Write([]byte(s))
-	return fmt.Sprintf("%x", h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))
 }
