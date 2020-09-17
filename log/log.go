@@ -2,14 +2,15 @@ package log
 
 import (
 	"fmt"
-	"github.com/kbrownehs18/gotools/common"
-	"github.com/kbrownehs18/gotools/constants"
 	"io"
 	"log"
 	"os"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/kbrownehs18/gotools/common"
+	"github.com/kbrownehs18/gotools/constants"
 )
 
 // Level log level
@@ -289,59 +290,59 @@ func (l *Logger) outputf(level Level, format string, v ...interface{}) {
 
 // Trace log
 func (l *Logger) Trace(v ...interface{}) {
-	l.output(TRACE, v)
+	l.output(TRACE, v...)
 }
 
 // Tracef log
 func (l *Logger) Tracef(format string, v ...interface{}) {
-	l.outputf(TRACE, format, v)
+	l.outputf(TRACE, format, v...)
 }
 
 // Debug log
 func (l *Logger) Debug(v ...interface{}) {
-	l.output(DEBUG, v)
+	l.output(DEBUG, v...)
 }
 
 // Debugf log
 func (l *Logger) Debugf(format string, v ...interface{}) {
-	l.outputf(DEBUG, format, v)
+	l.outputf(DEBUG, format, v...)
 }
 
 // Info log
 func (l *Logger) Info(v ...interface{}) {
-	l.output(INFO, v)
+	l.output(INFO, v...)
 }
 
 // Infof log
 func (l *Logger) Infof(format string, v ...interface{}) {
-	l.outputf(INFO, format, v)
+	l.outputf(INFO, format, v...)
 }
 
 // Warning log
 func (l *Logger) Warning(v ...interface{}) {
-	l.output(WARNING, v)
+	l.output(WARNING, v...)
 }
 
 // Warningf log
 func (l *Logger) Warningf(format string, v ...interface{}) {
-	l.outputf(WARNING, format, v)
+	l.outputf(WARNING, format, v...)
 }
 
 func (l *Logger) Error(v ...interface{}) {
-	l.output(ERROR, v)
+	l.output(ERROR, v...)
 }
 
 //Errorf log
 func (l *Logger) Errorf(format string, v ...interface{}) {
-	l.outputf(ERROR, format, v)
+	l.outputf(ERROR, format, v...)
 }
 
 // Fatal log
 func (l *Logger) Fatal(v ...interface{}) {
-	l.output(FATAL, v)
+	l.output(FATAL, v...)
 }
 
 // Fatalf log
 func (l *Logger) Fatalf(format string, v ...interface{}) {
-	l.outputf(FATAL, format, v)
+	l.outputf(FATAL, format, v...)
 }

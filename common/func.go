@@ -148,13 +148,35 @@ func RandArray(arr []string) string {
 	return arr[NewRand().Intn(len(arr))]
 }
 
+// CertType Certificate type
+type CertType int
+
+const (
+	// PKCS1 CertType
+	PKCS1 CertType = iota
+	// PKCS8 CertType
+	PKCS8
+)
+
 // RsaEncode rsa encode
-func RsaEncode(b, rsaKey []byte) ([]byte, error) {
+func RsaEncode(b, rsaKey []byte, t ...CertType) ([]byte, error) {
 	block, _ := pem.Decode(rsaKey)
 	if block == nil {
 		return b, errors.New("key error")
 	}
-	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	certType := PKCS8
+	if len(t) > 0 {
+		certType = t[0]
+	}
+	var pub interface{}
+	var err error
+	switch certType {
+	case PKCS1:
+		pub, err = x509.ParsePKCS1PublicKey(block.Bytes)
+	default:
+		pub, err = x509.ParsePKIXPublicKey(block.Bytes)
+	}
+
 	if err != nil {
 		return b, err
 	}
@@ -162,15 +184,32 @@ func RsaEncode(b, rsaKey []byte) ([]byte, error) {
 }
 
 // RsaDecode rsa decode
-func RsaDecode(b, rsaKey []byte) ([]byte, error) {
+func RsaDecode(b, rsaKey []byte, t ...CertType) ([]byte, error) {
 	block, _ := pem.Decode(rsaKey)
 	if block == nil {
 		return b, errors.New("key error")
 	}
-	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	certType := PKCS8
+	if len(t) > 0 {
+		certType = t[0]
+	}
+	var priv *rsa.PrivateKey
+	var privTemp interface{}
+	var err error
+	switch certType {
+	case PKCS1:
+		priv, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+	default:
+		privTemp, err = x509.ParsePKCS8PrivateKey(block.Bytes)
+	}
+
 	if err != nil {
 		return b, err
 	}
+	if privTemp != nil {
+		priv = privTemp.(*rsa.PrivateKey)
+	}
+
 	return rsa.DecryptPKCS1v15(crand.Reader, priv, b)
 }
 
