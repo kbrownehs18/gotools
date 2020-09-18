@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"mime/multipart"
 	"net"
@@ -840,4 +841,62 @@ func HMacSHA256(s, key string) string {
 	h := hmac.New(sha256.New, []byte(key))
 	h.Write([]byte(s))
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+// MaxEncryptBlock rsa encode max length
+var MaxEncryptBlock = 117
+
+// MaxDecryptBlock rsa decode max length
+var MaxDecryptBlock = 128
+
+// RSAEncode rsa
+func RSAEncode(b, key []byte, t ...CertType) ([]byte, error) {
+	l := len(b)
+	offset := 0
+	var data bytes.Buffer
+	var i int
+	for l-offset > 0 {
+		var cache []byte
+		var err error
+		if l-offset > MaxEncryptBlock {
+			cache, err = RsaEncode(b[offset:offset+MaxEncryptBlock], key, t...)
+		} else {
+			cache, err = RsaEncode(b[offset:], key, t...)
+		}
+		if err != nil {
+			log.Print("RSA Encode error: ", err)
+			return nil, err
+		}
+		data.Write(cache)
+		i++
+		offset = i * MaxEncryptBlock
+	}
+
+	return data.Bytes(), nil
+}
+
+// RSADecode rsa decode
+func RSADecode(b, key []byte, t ...CertType) ([]byte, error) {
+	l := len(b)
+	offset := 0
+	var data bytes.Buffer
+	var i int
+	for l-offset > 0 {
+		var cache []byte
+		var err error
+		if l-offset > MaxDecryptBlock {
+			cache, err = RsaDecode(b[offset:offset+MaxDecryptBlock], key, t...)
+		} else {
+			cache, err = RsaDecode(b[offset:], key, t...)
+		}
+		if err != nil {
+			log.Print("RSA Decode error: ", err)
+			return nil, err
+		}
+		data.Write(cache)
+		i++
+		offset = i * MaxDecryptBlock
+	}
+
+	return data.Bytes(), nil
 }
