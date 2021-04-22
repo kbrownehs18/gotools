@@ -293,7 +293,7 @@ func Authcode(text string, params ...interface{}) (str string, err error) {
 	l := len(params)
 
 	isEncode := DECODE
-	key := "abcdefghijklmnopqrstuvwxyz1234567890"
+	key := "abcdefghijklmnopqrstuvwxyz0123456789"
 	expiry := 0
 	cKeyLen := 8
 
@@ -397,7 +397,7 @@ func Authcode(text string, params ...interface{}) (str string, err error) {
 		box[a], box[j] = box[j], box[a]
 		result = append(result, byte(int(textB[i])^(box[(box[a]+box[j])%256])))
 	}
-
+	fmt.Println(result)
 	if isEncode == ENCODE {
 		// trim equal
 		return keyC + Base64Encode(result), nil

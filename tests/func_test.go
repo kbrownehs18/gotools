@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetLocalIp(t *testing.T) {
-	ips, err := common.GetLocalIp()
+	ips, err := common.GetLocalIP()
 	if err != nil {
 		t.Error(err)
 	}
@@ -75,4 +75,28 @@ func TestHttpRequest(t *testing.T) {
 		t.Error(err)
 	}
 	t.Log(rtn)
+}
+
+func TestAuthcode(t *testing.T) {
+	key := "1234567890"
+	var de string
+	var err error
+
+	en, err := common.Authcode("scnjl", common.ENCODE, key)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(en)
+
+	de, err = common.Authcode(en, common.DECODE, key)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(de)
+
+	// de, err = common.Authcode("", common.DECODE, key)
+	// if err != nil {
+	// 	t.Error(err)
+	// }
+	// t.Log(de)
 }
