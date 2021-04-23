@@ -94,9 +94,9 @@ func TestAuthcode(t *testing.T) {
 	}
 	t.Log(de)
 
-	// de, err = common.Authcode("", common.DECODE, key)
-	// if err != nil {
-	// 	t.Error(err)
-	// }
-	// t.Log(de)
+	de, err = common.Authcode("71c2d56bijjCHldZ9gt7rCpjwjQm1xICTmD9x+0A3/7HcICJJQ==", common.DECODE, key)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(de)
 }
